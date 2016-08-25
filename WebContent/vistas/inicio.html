@@ -1,2 +1,96 @@
+<html>
+<head>
+	<title>Inicio</title>
+	<link rel="stylesheet" type="text/css" href="../css/bootstrap.min.css"/>
+	<script type="text/javascript" src="../js/jquery-2.1.4.min.js"></script>
+	<script type="text/javascript" src="../js/bootstrap.min.js"></script>
+	<script>
+		$( document ).on( 'ready',function(){
+			$( '#form-login' ).on( 'submit',function(){
+				console.log( 'formulario ....' );
+				$( '#mensajeservidor' ).text('');
+				var usuario = $( '[name="usuario"]' ).val();
+				var clave = $( '[name="clave"]' ).val();
+				console.log( usuario );
 
-ofertas
+
+				$.ajax({
+					url: 'validarlogin',
+					data: {'usuario':usuario,'clave':clave},
+					dataType:'json',
+					success: function( mensaje ){
+						
+						if( mensaje["exito"] ){
+							window.location.href = "menu";
+						}else{
+							$( '#mensajeservidor' ).text( 'usuario o clave incorrecta' );
+						}
+					},
+					error: function(){
+						console.log( "ERROR en ajax login" );
+					}
+				});
+
+				return false;
+			});
+		});
+	</script>
+</head>
+
+<body>
+	<nav class="navbar navbar-default">
+	  <div class="container-fluid">
+	    <div class="navbar-header">
+	      <a class="navbar-brand" href="#">
+	        Proyecto
+	      </a>
+	    </div>
+		<span class="navbar-right">
+			<a href="#modal-login" class="btn btn-danger" data-toggle="modal">Ingresar</a>
+		</span>
+	  </div>
+	</nav>
+
+	<p class="text-danger text-center" th:if="${expirado}" th:text="'su sesion a expirado'"> </p>
+
+
+	<div class="modal fade" id="modal-login">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<p class="text-center text-primary"> Ingresar al sistema </p>
+				</div>
+
+				<div class="modal-body">
+					<form class="form-horizontal" action="validarlogin" id="form-login">
+						<div class="form-group">
+							<label class="control-label col-sm-3"> Usuario: </label>
+							<div class="col-sm-9">
+								<input class="form-control" name="usuario" type="text" autofocus=""/>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label class="control-label col-sm-3"> Clave: </label>
+							<div class="col-sm-9">
+								<input class="form-control" name="clave" type="text"/>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<p class="text-center text-danger" id="mensajeservidor"></p>
+						</div>
+
+						<div class="form-group">
+							<input type="submit" class="btn btn-success center-block" value="ingresar"/>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	
+</body>
+
+</html>

@@ -1,49 +1,77 @@
 package controladores;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.google.gson.JsonObject;
+
+import modelos.MUsuario;
+import servicios.SUsuarios;
+
 @Controller
 @RequestMapping( "app/*" )
 public class Login {
 	
-	@RequestMapping( "login" )
-	public String l(){
-		return "login.html";
-	}
+	@Autowired
+	SUsuarios USER;
 
+	@RequestMapping( "login" )
+	public String l( Model modelo,String expirado ){
+		
+		System.out.println( "exp:   "+expirado );
+		if( expirado != null ){
+			modelo.addAttribute( "expirado",true );
+		}
+		return "inicio.html";
+	}
+	
+	@RequestMapping( "menu" )
+	public String m( HttpServletRequest req,Model modelo ){
+		
+		HttpSession sesion = req.getSession( true );		
+		modelo.addAttribute( "USUARIO",sesion.getAttribute( "USUARIO" ) );
+		
+		MUsuario u =  (MUsuario) sesion.getAttribute( "USUARIO" );
+		
+		if( u != null ) return "menu.html";
+		else return "redirect:login?expirado=jfjsh";
+	}
 	
 	@ResponseBody
-	@RequestMapping( "validar_login" )
-	public String v( String usuario,String clave ){
+	@RequestMapping( "validarlogin" )
+	public String vl( HttpServletRequest req,Model modelo,String usuario,String clave ){
+		// json = { exito:'boolean',mensaje:'string' } 
+		JsonObject res = new JsonObject();
 		
-		System.out.println( usuario +"  "+clave );
+		boolean exito = USER.login(usuario, clave);
 		
-		if( usuario.equals( "juan" ) && clave.equals( "123" ) ){
-			return " login correctamente ";
+		if( exito ){
+			
+			MUsuario u = new MUsuario();
+			u.setLogin( "dskjhfds" );
+			
+			HttpSession sesion = req.getSession( true );
+			sesion.setAttribute( "USUARIO" , u );
+			sesion.setMaxInactiveInterval( 5 );
+			
+			
+			
+			modelo.addAttribute( "USUARIO",sesion.getAttribute( "USUARIO" ) );
+			
+			
+			res.addProperty( "exito", true);
+			return res.getAsJsonObject().toString();
 		}else{
-			return "error";
+			res.addProperty( "exito", false);
+			res.addProperty( "mensaje", "usuario o clave incorrecta");
+			return res.getAsJsonObject().toString();
 		}
+	}
 
-	}
-	
-	@RequestMapping( "validar_login2" )
-	public String v2( Model modelo, String usuario,String clave ){
-		
-		System.out.println( usuario +"  "+clave );
-		
-		if( usuario.equals( "juan" ) && clave.equals( "123" ) ){
-			return "inicio.html";
-		}else{
-			modelo.addAttribute( "ERROR","Usuario o clave no son correctas" );
-			return "login.html";
-		}
-
-	}
-	
-	public void fact(){
-		System.out.println(  "estoy en el servidor" );
-	}
 }
