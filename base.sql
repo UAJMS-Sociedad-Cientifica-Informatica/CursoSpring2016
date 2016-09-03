@@ -11,4 +11,15 @@ create table usuario(
 	primary key(persona)
 );
 
+create table persona(
+	ci varchar(10) not null,
+	nombre varchar(20) not null,
+	ap varchar(20),
+	am varchar(20),
+	sexo varchar(1) not null,
+	foto varchar(150) not null default 'img/default.jpg',
+	estado boolean not null default 't',
+	primary key(ci)
+);
+
 insert into usuario(persona,rol,alcance,login,passwd,red_salud,municipio,centro_salud,activo) values(1,'administrador','a','juan','juan',1,1,1,'t');

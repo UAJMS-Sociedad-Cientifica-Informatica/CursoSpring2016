@@ -4,6 +4,7 @@
 	<link rel="stylesheet" type="text/css" href="../../css/bootstrap.min.css"/>
 	<script type="text/javascript" src="../../js/jquery-2.1.4.min.js"></script>
 	<script type="text/javascript" src="../../js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="../../js/jquery.form.min.js"></script>
 </head>
 
 <body>
@@ -16,10 +17,10 @@
 	    </div>
 	    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 	        <ul class="nav navbar-nav">
-	            <li class="active">
-	            	<a href="#">Enlaces <span class="sr-only">(current)</span></a>
-	            </li>
 	            <li>
+	            	<a href="#">Enlaces</a>
+	            </li>
+	            <li class="active">
 	            	<a href="usuarios/usuarios">Usuarios <span class="sr-only">(current)</span></a>
 	            </li>
 	            <li>
@@ -80,10 +81,112 @@
 	         
 	    </div><!-- /.navbar-collapse -->
 
-		<p th:text="${USUARIO.login}"> </p>
+		
 		
 	  </div>
 	</nav>
+
+	<div class="container">
+		<a href="#modal-agregar" class="btn btn-success" data-toggle="modal"> Agregar </a>
+		<table class="table hover">
+			<thead>
+				<tr>
+					<th>No</th>
+					<th>Nombres</th>
+					<th>Sexo</th>
+					<th>M</th>
+					<th>B</th>
+				</tr>
+			</thead>
+
+			<tbody>
+				<tr th:each="persona : ${PERSONAS}">
+					<td>1</td>
+					<td th:text="${persona.nombre}">nombre</td>
+					<td th:text="${persona.sexo}">nombre</td>
+					<td> <a href="#modal-modificar" class="btn btn-info" data-toggle="modal"> M </a> </td>
+					<td> <a href="#modal-Borrar" class="btn btn-danger" data-toggle="modal"> B </a> </td>
+				</tr>
+				<tr>
+					<td>1</td>
+					<td>Juan jose soto miranda</td>
+					<td>Masculino</td>
+					<td> <a href="#modal-modificar" class="btn btn-info" data-toggle="modal"> M </a> </td>
+					<td> <a href="#modal-Borrar" class="btn btn-danger" data-toggle="modal"> B </a> </td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+
+
+	<div class="modal fade" id="modal-agregar">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<p class="text-center text-primary"> Agregar Usuario </p>
+				</div>
+
+				<div class="modal-body">
+					<form class="form-horizontal" action="agregar_usuario" method="POST">
+						<div class="form-group">
+							<label class="control-label col-sm-3"> Ci: </label>
+							<div class="col-sm-9">
+								<input class="form-control" name="ci" type="text" required="" autofocus=""/>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label class="control-label col-sm-3"> Nombre: </label>
+							<div class="col-sm-9">
+								<input class="form-control" name="nombre" type="text"/>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label class="control-label col-sm-3"> Ap. paterno: </label>
+							<div class="col-sm-9">
+								<input class="form-control" name="ap" type="text"/>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label class="control-label col-sm-3"> Ap. materno: </label>
+							<div class="col-sm-9">
+								<input class="form-control" name="am" type="text"/>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label class="control-label col-sm-3"> sexo: </label>
+							<div class="col-sm-9">
+								<select class="form-control" name="sexo">
+									<option value="M">Hombre</option>
+									<option value="F">Mujer</option>
+									<option value="O">Otros</option>
+								</select>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label class="control-label col-sm-3"> Foto: </label>
+							<div class="col-sm-9">
+								<input class="form-control" name="foto2" type="file"/>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<p class="text-center text-danger" id="mensajeservidor"></p>
+						</div>
+
+						<div class="form-group">
+							<input type="submit" class="btn btn-success center-block" value="ingresar"/>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+
 	
 </body>
 
