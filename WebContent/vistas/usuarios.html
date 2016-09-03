@@ -11,7 +11,7 @@
 	<nav class="navbar navbar-default">
 	  <div class="container-fluid">
 	    <div class="navbar-header">
-	      <a class="navbar-brand" href="#">
+	      <a class="navbar-brand" href="../menu">
 	        Proyecto
 	      </a>
 	    </div>
@@ -21,7 +21,7 @@
 	            	<a href="#">Enlaces</a>
 	            </li>
 	            <li class="active">
-	            	<a href="usuarios/usuarios">Usuarios <span class="sr-only">(current)</span></a>
+	            	<a href="usuarios">Usuarios <span class="sr-only">(current)</span></a>
 	            </li>
 	            <li>
 	            	<a href="#">Mujeres</a>
@@ -78,6 +78,10 @@
 	              </ul>
 	            </li>
 	        </ul>
+
+	        <ul class="navbar-right">
+	        	<a href="/Taller1/app/logout">Salir</a>
+	        </ul>
 	         
 	    </div><!-- /.navbar-collapse -->
 
@@ -87,11 +91,15 @@
 	</nav>
 
 	<div class="container">
-		<a href="#modal-agregar" class="btn btn-success" data-toggle="modal"> Agregar </a>
+		<a href="?estado=false" class="btn btn-link"> inactivos</a>
+		<a href="?estado=true" class="btn btn-link"> activos</a>
+		<p></p>
+		<a th:if="${ESTADO}"  href="#modal-agregar" class="btn btn-success" data-toggle="modal"> Agregar </a>
 		<table class="table hover">
 			<thead>
 				<tr>
 					<th>No</th>
+					<th>Ci</th>
 					<th>Nombres</th>
 					<th>Sexo</th>
 					<th>M</th>
@@ -102,32 +110,29 @@
 			<tbody>
 				<tr th:each="persona : ${PERSONAS}">
 					<td>1</td>
-					<td th:text="${persona.nombre}">nombre</td>
-					<td th:text="${persona.sexo}">nombre</td>
-					<td> <a href="#modal-modificar" class="btn btn-info" data-toggle="modal"> M </a> </td>
-					<td> <a href="#modal-Borrar" class="btn btn-danger" data-toggle="modal"> B </a> </td>
-				</tr>
-				<tr>
-					<td>1</td>
-					<td>Juan jose soto miranda</td>
-					<td>Masculino</td>
-					<td> <a href="#modal-modificar" class="btn btn-info" data-toggle="modal"> M </a> </td>
-					<td> <a href="#modal-Borrar" class="btn btn-danger" data-toggle="modal"> B </a> </td>
+					<td th:text="${persona.ci}">nombre</td>
+					<td> <img style="width:60px" alt="FOTO" th:src="'../../'+${persona.foto}"/> </td>
+					<td th:text="${persona}">nombre</td>
+					<td th:text="${persona.sexo=='F'? 'Mujer': persona.sexo=='M'? 'Hombre':'Otros' }">nombre</td>
+					
+					<td th:if="${ESTADO}"> <a href="#modal-modificar" th:attr="pk=${persona.ci}" pk="2"  class="btn btn-info" data-toggle="modal"> M </a> </td>
+					<td th:if="${ESTADO}"> <a href="#modal-borrar" th:attr="pk=${persona.ci}" class="btn btn-danger" data-toggle="modal"> B </a> </td>
+					<td th:unless="${ESTADO}"> <a href="#modal-alta" class="btn btn-success" data-toggle="modal"> Dar alta </a> </td>
 				</tr>
 			</tbody>
 		</table>
 	</div>
 
 
-	<div class="modal fade" id="modal-agregar">
+	<div class="modal fade" id="modal-modificar">
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-header">
-					<p class="text-center text-primary"> Agregar Usuario </p>
+					<p class="text-center text-primary"> Modificar Usuario </p>
 				</div>
 
 				<div class="modal-body">
-					<form class="form-horizontal" action="agregar_usuario" method="POST">
+					<form class="form-horizontal" get-action="get_usuario" action="modificar_usuario" method="POST" enctype="multipart/form-data">
 						<div class="form-group">
 							<label class="control-label col-sm-3"> Ci: </label>
 							<div class="col-sm-9">
@@ -138,7 +143,7 @@
 						<div class="form-group">
 							<label class="control-label col-sm-3"> Nombre: </label>
 							<div class="col-sm-9">
-								<input class="form-control" name="nombre" type="text"/>
+								<input class="form-control" name="nombre" type="text" required=""/>
 							</div>
 						</div>
 
@@ -159,7 +164,7 @@
 						<div class="form-group">
 							<label class="control-label col-sm-3"> sexo: </label>
 							<div class="col-sm-9">
-								<select class="form-control" name="sexo">
+								<select class="form-control" name="sexo" required="">
 									<option value="M">Hombre</option>
 									<option value="F">Mujer</option>
 									<option value="O">Otros</option>
@@ -170,7 +175,131 @@
 						<div class="form-group">
 							<label class="control-label col-sm-3"> Foto: </label>
 							<div class="col-sm-9">
-								<input class="form-control" name="foto2" type="file"/>
+								<input class="form-control" name="foto2" type="file" accept="image/*"/>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<p class="text-center text-danger" id="mensajeservidor"></p>
+						</div>
+
+						<div class="form-group">
+							<input type="submit" class="btn btn-success center-block" value="Actualizar"/>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script>
+	$(document).on('ready',function(){
+		$("#modal-modificar").on('show.bs.modal',function( e ){
+			var url_getaction = $("#modal-modificar").find('[get-action]').attr( 'get-action' );
+			var ci = $(e.relatedTarget ).attr("pk");
+				
+			$(this).ajaxSubmit({
+				url: url_getaction,
+				timeout: 15000,
+				dataType: 'json',
+				data:{ci:ci},
+				beforeSend: function(){
+					$("#modal-modificar").find('#mensajeservidor').html( 'Espera un cacho....' );
+				},
+				success: function( json ){
+					console.log( json );
+					$("#modal-modificar").find('[name="ci"]').val( json["ci"] );
+					$("#modal-modificar").find('[name="nombre"]').val( json["nombre"] );
+					$("#modal-modificar").find('[name="ap"]').val( json["ap"] );
+					$("#modal-modificar").find('[name="am"]').val( json["am"] );
+					$("#modal-modificar").find('[name="sexo"]').val( json["sexo"] );
+					$("#modal-modificar").find('#mensajeservidor').html( 'Puede editar los datos' );
+				},
+				error: function( s,status,msg ){
+					$("#modal-modificar").find('#mensajeservidor').html( msg );
+				}
+			});
+			
+			$(this).find('form').on('submit',function(){
+				
+				$(this).ajaxSubmit({
+					timeout: 15000,
+					dataType: 'json',
+					beforeSend: function(){
+						$("#modal-modificar").find('#mensajeservidor').html( 'Espera un cacho....' );
+					},
+					success: function( json ){
+						if( !json["exito"] ){
+							$("#modal-modificar").find('#mensajeservidor').html( json["msg"] );
+						}else{
+							window.location.reload(true);
+						}
+					},
+					error: function( s,status,msg ){
+						$("#modal-modificar").find('#mensajeservidor').html( msg );
+					}
+				});
+				return false;
+			});
+		});
+	});
+	</script>
+	
+	
+	
+	
+	
+	<div class="modal fade" id="modal-agregar">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<p class="text-center text-primary"> Agregar Usuario </p>
+				</div>
+
+				<div class="modal-body">
+					<form class="form-horizontal" action="agregar_usuario" method="POST" enctype="multipart/form-data">
+						<div class="form-group">
+							<label class="control-label col-sm-3"> Ci: </label>
+							<div class="col-sm-9">
+								<input class="form-control" name="ci" type="text" required="" autofocus=""/>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label class="control-label col-sm-3"> Nombre: </label>
+							<div class="col-sm-9">
+								<input class="form-control" name="nombre" type="text" required=""/>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label class="control-label col-sm-3"> Ap. paterno: </label>
+							<div class="col-sm-9">
+								<input class="form-control" name="ap" type="text"/>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label class="control-label col-sm-3"> Ap. materno: </label>
+							<div class="col-sm-9">
+								<input class="form-control" name="am" type="text"/>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label class="control-label col-sm-3"> sexo: </label>
+							<div class="col-sm-9">
+								<select class="form-control" name="sexo" required="">
+									<option value="M">Hombre</option>
+									<option value="F">Mujer</option>
+									<option value="O">Otros</option>
+								</select>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label class="control-label col-sm-3"> Foto: </label>
+							<div class="col-sm-9">
+								<input class="form-control" name="foto2" type="file" accept="image/*" required=""/>
 							</div>
 						</div>
 
@@ -186,6 +315,81 @@
 			</div>
 		</div>
 	</div>
+	
+	<script>
+	$(document).on('ready',function(){
+		$("#modal-agregar").on('show.bs.modal',function(){
+			$(this).find('form').on('submit',function(){
+				
+				$(this).ajaxSubmit({
+					timeout: 15000,
+					dataType: 'json',
+					beforeSend: function(){
+						$("#modal-agregar").find('#mensajeservidor').html( 'Espera un cacho....' );
+					},
+					success: function( json ){
+						if( !json["exito"] ){
+							$("#modal-agregar").find('#mensajeservidor').html( json["msg"] );
+						}else{
+							window.location.reload(true);
+						}
+					},
+					error: function( s,status,msg ){
+						$(modal).find('form').find('#form-server-msg').html( msg );
+					}
+				});
+				return false;
+			});
+		});
+	});
+	</script>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<div class="modal fade" id="modal-borrar">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<p class="text-center text-primary"> Borrar Usuario </p>
+				</div>
+
+				<div class="modal-body">
+					<form class="form-horizontal" action="borrar_usuario" method="POST">
+						<div class="form-group">
+							<label class="control-label col-sm-3"> Ci: </label>
+							<div class="col-sm-9">
+								<input class="form-control" name="ci" type="text" required="" readonly=""/>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<p class="text-center text-danger" id="mensajeservidor"></p>
+						</div>
+
+						<div class="form-group">
+							<input type="submit" class="btn btn-success center-block" value="Borrar"/>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script>
+	$(document).on('ready',function(){
+		$("#modal-borrar").on('show.bs.modal',function( e ){
+			var ci = $(e.relatedTarget ).attr("pk");
+			console.log( ci );
+			$("#modal-borrar").find('[name="ci"]').val( ci );
+		});
+	});
+	</script>
+	
 
 	
 </body>

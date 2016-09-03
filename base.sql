@@ -23,3 +23,4 @@ create table persona(
 );
 
 insert into usuario(persona,rol,alcance,login,passwd,red_salud,municipio,centro_salud,activo) values(1,'administrador','a','juan','juan',1,1,1,'t');
+insert into persona(ci,nombre,ap,am,sexo) values('123','juan jose','soto','miranda','M');

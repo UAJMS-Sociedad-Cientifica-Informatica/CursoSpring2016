@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8"/>
+	<title>Tu Transporte - Gestionar Usuarios</title>
+	<link rel="stylesheet" type="text/css" href="../../../css/bootstrap.min.css"/>
+	<link rel="stylesheet" type="text/css" href="../../../css/estilo.css"/>
+	<link rel="stylesheet" type="text/css" href="../../../css/dashboard.css"/>
+
+	<script type="text/javascript" src="../../../js/jquery-2.1.4.min.js"></script>
+	<script type="text/javascript" src="../../../js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="../../../js/popover.js"></script>
+
+	<script type="text/javascript" src="../../../js/jquery.form.min.js"></script>
+	<script type="text/javascript" src="../../../js/fileinput.js"></script>
+	<script type="text/javascript" src="../../../js/modalajax.js"></script>
+
+	<script type="text/javascript" src="../../../js/formValidation.min.js"></script>
+	<script type="text/javascript" src="../../../js/framework/bootstrap.min.js"></script>
+	<script type="text/javascript" src="../../../js/es_ES.js"></script>
+
+	<script>
+	$(document).on('ready',function(){
+		$('[id^="modal"]').modalajax();
+		$('[id^="modal-a"]').formValidation({
+			locale: 'es_ES',
+			icon: {
+			    valid:      'glyphicon glyphicon-ok',
+			    invalid:    'glyphicon glyphicon-remove',
+			    validating: 'glyphicon glyphicon-refresh'
+			}
+		});
+	});
+	</script>
+</head>
+
+<body>
+
+	<div class="container-fluid">
+		<nav class="navbar navbar-inverse navbar-fixed-top">
+			<div class="container-fluid">
+				<div class="navbar-header">
+					<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar1">
+						<span class="sr-only">Menu</span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+
+					<a class="navbar-brand" src="../../../img/logo.jpg">SCTP</a>
+				</div>
+
+				<div class="collapse navbar-collapse" id="navbar1">
+					<ul class="nav navbar-nav">
+						<li role="presentation"> <a href="../../inicio2.html">Inicio</a> </li>
+						<li role="presentation" class="active" th:if="${USUARIO.rolActual.permisos.contains('tutransporte')}"> <a href="tutransporte2.html">Tu transporte</a> </li>
+						<li role="presentation" th:if="${USUARIO.rolActual.permisos.contains('tuciudad')}"> <a href="../../tuciudad/gestion/tuciudad2.html">Tu ciudad</a> </li>
+						<li role="presentation" th:if="${USUARIO.rolActual.permisos.contains('atencion')}"> <a href="../../atencioncliente/gestion/atencioncliente2.html">Atencion al cliente</a> </li>
+						<li role="presentation" th:if="${USUARIO.rolActual.permisos.contains('noticias')}"> <a href="../../noticias/gestion/noticias2.html">Noticias</a> </li>
+						<li role="presentation" th:if="${USUARIO.rolActual.permisos.contains('config')}"> <a href="../../configuracion/gestion/configuracion.html">Configuracion</a> </li>
+					</ul>
+					<!-- <a class="btn btn-link navbar-right" href="../../inicio.html" th:href="'../../logout.html'"> <b>X</b> </a> -->
+					<ul class="nav navbar-nav navbar-right">
+						<li class="dropdown">
+							<a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="true"> 
+								<img style="max-width:30px;max-height:30px;margin-top:0px" data-container="body" data-toggle="popover2" tabindex="0" src="../../../img/logo.jpg" th:src="'../../../img/'+${USUARIO.foto_128}"/>
+								<span class="hidden-xs" th:text="${USUARIO.nombre}">Diego Armando</span> <span class="caret"></span>
+							</a>
+
+							<ul class="dropdown-menu" style="padding:1px 0 0 0;margin-top:10px;width: 280px">
+								<li class="text-center">
+									<img class="img-circle" src="../../../img/logo.jpg" th:src="'../../../img/'+${USUARIO.foto_256}" style="border: 3px solid;width: 90px;" alt="User"/>
+									<p class="text-center" th:text="${USUARIO}">
+										Diego saldias - Web Developer
+										<small>registrado Nov. 2012</small>
+									</p>
+								</li>
+
+								<li style="padding:10px;background:#f9f9f9">
+									<div class="pull-left">
+										<a href="../../configuracion/gestion/configuracion.html" data-toggle="modal" tipo="add" class="btn btn-default">Perfil</a>
+									</div>
+									<div class="pull-right">
+										<a href="../../inicio.html" class="btn btn-default">Salir</a>
+									</div>
+									<div class="clearfix"></div>
+								</li>
+							</ul>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+
+		
+		<div class="row">
+			<div class="col-sm-3 col-lg-2 sidebar">
+				<p class="text-center">
+					<a href="#" th:href="'../../../img/'+${USUARIO.foto}"> <img class="img-responsive img-thumbnail" src="../../../img/logo.jpg" th:src="'../../../img/'+${USUARIO.foto_256}"/></a>
+				</p>
+				<div class="sidebar-avatar-message"><span class="badge">10</span></div>
+
+				<p class="text-success text-center font-cardinal2"> <b th:text="${USUARIO.rolActual.nombre}">Superusuario</b> </p>
+				<p class="text-success text-center font-marmyadose" th:text="${USUARIO}">Juan Jose Soto Miranda</p>
+
+				<span th:if="${estado}">
+					<a class="btn btn-link" href="#modal-agregar" data-toggle="modal" tipo="add" th:if="${USUARIO.rolActual.permisos.contains('add_usuarios')}">Agregar</a>
+					<a class="btn btn-link" href="#modal-borrar" data-toggle="modal" tipo="del" th:if="${USUARIO.rolActual.permisos.contains('del_usuarios')}">Borrar</a>
+				</span>
+				<span th:if="${estado==false}">
+					<a class="btn btn-link" href="#modal-alta" data-toggle="modal" tipo="alt" th:if="${USUARIO.rolActual.permisos.contains('alt_usuarios')}">Dar alta</a>
+				</span>
+
+				<div class="list-group">
+					<a class="list-group-item active" href="gestionar_usuarios.html" th:if="${USUARIO.rolActual.permisos.contains('usuarios')}"> <span class="glyphicon glyphicon-user text-link">&nbsp;</span> Usuarios </a> 
+					<a class="list-group-item" href="gestionar_conductores.html" th:if="${USUARIO.rolActual.permisos.contains('conductor')}"> <span class="glyphicon glyphicon-sunglasses text-link">&nbsp;</span> Conductores </a> 
+					<a class="list-group-item" href="gestionar_cooperativas.html" th:if="${USUARIO.rolActual.permisos.contains('cooperat')}"> <span class="glyphicon glyphicon-tasks text-link">&nbsp;</span> Cooperativas </a> 
+					<a class="list-group-item" href="gestionar_lineas.html" th:if="${USUARIO.rolActual.permisos.contains('lineas')}"> <span class="glyphicon glyphicon-tent text-link">&nbsp;</span> Lineas </a> 
+					<a class="list-group-item" href="gestionar_microbuses.html" th:if="${USUARIO.rolActual.permisos.contains('micros')}"> <span class="glyphicon glyphicon-bed text-link">&nbsp;</span> Microbuses </a> 
+					<a class="list-group-item" href="gestionar_horarios.html" th:if="${USUARIO.rolActual.permisos.contains('horarios')}"> <span class="glyphicon glyphicon-th-list text-link">&nbsp;</span> Horarios </a> 
+					<a class="list-group-item" href="gestionar_paradas.html" th:if="${USUARIO.rolActual.permisos.contains('paradas')}"> <span class="glyphicon glyphicon-map-marker text-link">&nbsp;</span> Paradas </a> 
+					<a class="list-group-item" href="gestionar_rutas.html" th:if="${USUARIO.rolActual.permisos.contains('rutas')}"> <span class="glyphicon glyphicon-road text-link">&nbsp;</span> Rutas </a> 
+					<a class="list-group-item" href="gestionar_tarifas.html" th:if="${USUARIO.rolActual.permisos.contains('tarifas')}"> <span class="glyphicon glyphicon-tag text-link">&nbsp;</span> Tarifas </a> 
+					<a class="list-group-item" href="gestionar_estadoservicio.html" th:if="${USUARIO.rolActual.permisos.contains('estadoservicio')}"> <span class="glyphicon glyphicon-glass text-link">&nbsp;</span> Estado </a> 
+				</div>
+			</div> 
+
+
+
+			<div class="col-sm-9 col-lg-10 col-sm-offset-3 col-lg-offset-2" th:if="${USUARIO.rolActual.permisos.contains('usuarios')}">
+				<div class="panel panel-info">
+					<div class="panel-heading">
+						<a href="#opt-filtro" data-toggle="collapse">Opciones de filtro <span class="caret"></span></a>
+					</div>
+
+					<div class="collapse" id="opt-filtro">
+						<div class="panel-body">
+							<form class="form-horizontal" action="#">
+								<div class="col-sm-3">
+									<div class="btn-group" data-toggle="buttons">
+										<label class="btn btn-default btn-sm active">
+											<input type="checkbox" checked=""/>Activos
+										</label>
+										<label class="btn btn-default btn-sm">
+											<input type="checkbox"/>Inactivos
+										</label>
+									</div>
+								</div>
+
+								<div class="col-sm-7">
+									<div class="form-group">
+										<div class="input-group input-group-sm">
+											<label class="input-group-addon">Filtro:</label>
+											<input class="form-control" type="text"/>
+										</div>
+									</div>
+								</div>
+
+								<div class="col-sm-2">
+									<div class="form-group pull-right">
+										<input class="btn btn-success btn-sm" type="submit" value="Ejecutar"/>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+
+
+				<span th:if="${USUARIO.rolActual.permisos.contains('ina_usuarios')}">
+					<p class="text-muted text-center" th:text="${cant_usuarios}+' usuarios.'"> 24 usuarios  </p>
+					<a class="btn btn-link" href="?estado=true">Activos</a>
+					<a class="btn btn-link" href="?estado=false">Inactivos</a>
+				</span>
+
+
+				<a class="btn btn-default pull-right" href="gestionar_roles.html" th:if="${USUARIO.rolActual.permisos.contains('roles')}"> Roles </a>
+				<div class="clearfix"></div>
+
+
+				<div class="row">
+
+					<div th:each="user,ind : ${USUARIOS}">
+						<div class="col-sm-6">
+							<div class="row" pk="1" th:attr="pk=${user.correo}">
+								<div class="col-xs-5">
+									<a href="../../../img/usuarios/alicia26.jpg" th:href="'../../../img/'+${user.foto}">
+										<img class="img-responsive" src="../../../img/usuarios/alicia26.jpg" imagen="" th:src="'../../../img/'+${user.foto_256}" alt="FOTO"/>
+									</a>
+									<div class="btn-group btn-group-sm" data-toggle="buttons" th:if="${USUARIO.rolActual.permisos.contains('del_usuarios') or USUARIO.rolActual.permisos.contains('alt_usuarios') }">
+										<label class="btn btn-default">
+											<input class="checkbox" type="checkbox" borrar=""/>&times;
+										</label>
+									</div>
+								</div>
+
+								<div class="col-xs-7">
+									<a href="#" data-toggle="popover" data-container="body" nombre=""> <b th:utext="${user}"> Juan Jose soto Miranda </b> <span class="caret"></span> </a>
+									<p> <span class="text-success">En billetera:</span> <span th:text="${user.billetera}+' bs.'">100 bs</span> </p>
+									<p> <span class="text-success">Correo:</span> <span th:text="${user.correo}">correito@gmail.com</span> </p>
+									<p th:unless="${user.ingreso}"> <span class="text-success">Patron:</span> <span th:text="${user.patron}" th:class="text-danger"> ????? </span> </p>
+									<p> <span class="text-success">Roles:</span> <span th:text="${user.nom_roles}">admin,normal</span> </p>
+									
+									<div class="mi-popover-data-content collapse">
+										<p th:if="${USUARIO.rolActual.permisos.contains('mod_usuarios') and estado}">
+											<a class="btn btn-link btn-sm center-block" href="#modal-modificar" data-toggle="modal" tipo="mod">Modificar Usuario</a>
+										</p>
+										<p> <span class="text-primary">Correo:</span> 				<span th:text="${user.correo}"> ????? </span> </p>
+										<p th:unless="${user.ingreso}"> <span class="text-primary">Patron:</span> <span class="text-danger" th:text="${user.patron}"> ????? </span> </p>
+										<p> <span class="text-primary">Ci:</span> 					<span th:text="${user.ci}"> ????? </span> </p>
+										<p> <span class="text-primary">Registrado el:</span> 		<span th:text="${user.fecha_reg}"> ????? </span> </p>
+										<p> <span class="text-primary">En billetera:</span>			<span th:text="${user.billetera}+' bs.'"> ---- </span>  </p>
+										<p> <span class="text-primary">Roles:</span>				<span th:text="${user.nom_roles}"> ????? </span> </p>
+										<p> <span class="text-primary">Direccion:</span>			<span th:text="'B/'+${user.barrio}+'. c/'+${user.calle}+' - '+${user.nro}"> ????? </span> </p>										
+									</div>
+
+								</div>
+							</div>
+						</div>
+						<div class="clearfix" style="margin-bottom:10px;" th:if="${ind.count%2==0}"> </div>
+					</div>
+
+					
+					
+
+				</div>
+
+				
+				<!-- CARGADO DINAMICAMENTE -->
+				<div class="collapse" id="menu-popover">
+					<div class="row">
+						<div class="col-sm-12">
+							<img class="img-responsive center-block" src="../../../img/usuarios/alicia26.jpg" th:src="'../../../img/usuarios/user.png'"/>
+							<div class="mi-popover-content">
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<footer>
+					<hr />
+					<p class="text-center">&copy; copyright 2016</p>
+				</footer>
+			</div>
+		</div>
+	</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	<!-- VENTANAS MODALES -->
+	<!-- AGREGAR -->
+	<div class="modal fade" id="modal-agregar">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="panel panel-primary" style="margin-bottom:0px">
+					<div class="panel-heading">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+						<h4 class="panel-title text-center">Agregar Usuario</h4>
+					</div>
+
+					<div class="panel-body modal-body">
+						<form class="form-horizontal" enctype="multipart/form-data" method="POST" getaction="get_roles" action="#" th:action="agregar_usuario">
+							<div class="form-group form-group-sm">
+								<label class="col-sm-3 control-label"> <span class="text-danger">* </span> Correo:</label>
+								<div class="col-sm-9">
+									<input class="form-control" type="text" name="correo" placeholder="nombre@correo.com" maxlength="40" 
+									data-fv-regexp="true" 
+									data-fv-regexp-regexp="^[^@\s]+@([^@\s]+\.)+[^@\s]+" 
+									data-fv-regexp-message="ejemplo de correo: nombre@correo.com" 
+									data-fv-emailaddress="true" 
+									required="" autofocus=""/>
+									<span class="help-block">
+										El correo que ponga se usara para iniciar su session
+									</span>
+								</div>
+							</div>
+
+							<div class="form-group form-group-sm">
+								<label class="col-sm-3 control-label"> <span class="text-danger">* </span> Nombre:</label>
+								<div class="col-sm-9">
+									<input class="form-control" type="text" name="nombre" maxlength="30"
+									data-fv-regexp="true" 
+									data-fv-regexp-regexp="^([a-zA-Z]{2})" 
+									data-fv-regexp-message="el campo debe comenzar con al menos 2 letras" 
+									data-fv-notempty-message="este campo no puede estar vacio" 
+									required=""/>
+								</div>
+							</div>
+
+							<div class="form-group form-group-sm">
+								<label class="col-sm-3 control-label">Ap. Paterno:</label>
+								<div class="col-sm-3">
+									<input class="form-control" type="text" maxlength="30" name="ap_paterno" 
+									data-fv-regexp="true" 
+									data-fv-regexp-regexp="^[a-zA-Z]{2,}[\w\d]*"  
+									data-fv-regexp-message="el campo debe comenzar con al menos 2 letras" />
+								</div>
+
+								<label class="col-sm-3 control-label">Ap. Materno:</label>
+								<div class="col-sm-3">
+									<input class="form-control" type="text" maxlength="30" name="ap_materno" 
+									data-fv-regexp="true" 
+									data-fv-regexp-regexp="^[a-zA-Z]{2,}[\w\d]*" 
+									data-fv-regexp-message="el campo debe comenzar con al menos 2 letras" />
+								</div>
+							</div>
+
+							<div class="form-group form-group-sm">
+								<label class="col-sm-3 control-label"> <span class="text-danger">* </span> Ci:</label>
+								<div class="col-sm-3">
+									<input class="form-control" type="text" name="ci" maxlength="15" 
+									data-fv-regexp="true" 
+									data-fv-regexp-regexp="^[0-9]{7}" 
+									data-fv-notempty-message="este campo no puede estar vacio" 
+									data-fv-regexp-message="el ci debe comenzar con 7 numeros" required=""/>
+								</div>
+
+								<label class="col-sm-3 control-label"> <span class="text-danger">* </span> Telefono:</label>
+								<div class="col-sm-3">
+									<input class="form-control" type="text" name="telefono" 
+									data-fv-regexp="true" 
+									data-fv-regexp-regexp="^[\d]{1,15}" 
+									data-fv-regexp-message="este campo debe comenzar con 1 digitos" maxlength="15" required=""/>
+								</div>
+							</div>
+
+							<div class="form-group form-group-sm">
+								<label class="col-sm-3 control-label">sexo:</label>
+								<div class="col-sm-3">
+									<select class="form-control" name="sexo">
+										<option value="M">Hombre</option>
+										<option value="F">Mujer</option>
+										<option value="O">Otros</option>
+									</select>
+								</div>
+
+								<label class="col-sm-3 control-label">Estado civil:</label>
+								<div class="col-sm-3">
+									<select class="form-control" name="estado_civil">
+										<option value="S">Soltero</option>
+										<option value="C">Casado</option>
+										<option value="V">Viudo</option>
+										<option value="D">Divorciado</option>
+									</select>
+								</div>
+							</div>
+
+							<div class="form-group form-group-sm">
+								<label class="col-sm-3 control-label"> <span class="text-danger">* </span> Foto:</label>
+								<div class="col-sm-9">
+									<input class="form-control file" type="file" name="imagen" accept="image/*" required=""/>
+								</div>
+							</div>
+
+							<div class="form-group form-group-sm">
+								<label class="col-sm-3 control-label"> <span class="text-danger">* </span> Billetera:</label>
+								<div class="col-sm-9">
+									<div class="input-group">
+										<input class="form-control" type="text" name="billetera" 
+										data-fv-regexp="true" 
+										data-fv-regexp-regexp="^[\d]*[\.]{0,1}[\d]*$" 
+										data-fv-regexp-message="este campo debe contener valores numericos" required=""/>
+										<label class="input-group-addon">.Bs</label>
+									</div>
+								</div>
+							</div>
+
+							<div class="panel panel-default">
+								<div class="panel-heading">
+									<div class="form-group form-group-sm">
+										<label class="col-sm-3 control-label">Barrio:</label>
+										<div class="col-sm-9">
+											<input class="form-control" type="text" name="barrio" maxlength="30"/>
+										</div>
+									</div>
+
+									<div class="form-group form-group-sm">
+										<div class="col-sm-3"></div>
+										<div class="col-sm-9">
+											<div class="input-group">
+												<label class="input-group-addon">Calle:</label>
+												<input class="form-control" type="text" name="calle" maxlength="30"/>
+												<label class="input-group-addon">Nro. casa:</label>
+												<input class="form-control" type="text" name="nro" maxlength="10"/>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<div class="form-group form-group-sm">
+								<label class="col-sm-3 control-label"> <span class="text-danger">* </span> Roles:</label>
+								<div class="col-sm-9">
+									<select class="form-control" name="roles" multiple="" required="" selectdata="rolesopt">
+										<option value="administrador">administrador</option>
+										<option value="normal">normal</option>
+									</select>
+								</div>
+							</div>
+
+
+							<div class="form-group form-group-sm">
+								<label class="col-sm-5 control-label"> <span class="text-danger">* </span> Contraseña:</label>
+								<div class="col-sm-7">
+									<input class="form-control" type="password" name="clave" maxlength="150" required=""/>
+								</div>
+							</div>
+
+							<div class="form-group form-group-sm">
+								<label class="col-sm-5 control-label"> <span class="text-danger">* </span> Repita su Contraseña:</label>
+								<div class="col-sm-7">
+									<input class="form-control" type="password" name="claverep" 
+									data-fv-identical="true"
+									data-fv-identical-field="clave"
+									data-fv-identical-message="la contraseña no coincide"
+									maxlength="150" required=""/>
+								</div>
+							</div>
+
+							<div class="form-group form-group-sm">
+								<p class="text-danger text-center" servermsg=""></p>
+							</div>
+
+							<div class="form-group form-group-sm">
+								<p class="text-center">
+									<a type="button" class="btn btn-success" data-toggle="popover2" tabindex="0">Aceptar</a>
+								</p>							
+								<script type="text/javascript">
+									$('[data-toggle="popover2"]').popover({
+										title:'Desea continuar',
+										html:true,
+										content:'<input class="btn btn-link center-block" type="submit" value="SI"/>',
+										placement:'top',
+										trigger: 'focus'
+									});
+								</script>
+							</div>
+
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+
+	<!-- BORRAR -->
+	<div class="modal fade" id="modal-borrar">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="panel panel-primary" style="margin-bottom:0px">
+					<div class="panel-heading">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+						<h4 class="panel-title text-center">Confirmar Eliminacion</h4>
+					</div>
+
+					<div class="panel-body modal-body">				
+						<div class="row">
+							<div class="col-sm-6">
+								<div class="row">
+									<div class="col-xs-4">
+										<img class="img-responsive" src="../../../img/usuarios/alicia26.jpg" th:src="'../../../img/usuarios/user.png'"/>
+									</div>
+									<div class="col-xs-8">
+										<p class="text-info text-left">Juana Juanita Juarez</p>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="panel-footer modal-footer">
+						<p action="borrar_usuarios"></p>
+						<p class="text-danger text-center" servermsg=""></p>
+						<div class="col-xs-4 col-xs-offset-4">
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- ALTAS -->
+	<div class="modal fade" id="modal-alta">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="panel panel-primary" style="margin-bottom:0px">
+					<div class="panel-heading">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+						<h4 class="panel-title text-center">Dar de alta</h4>
+					</div>
+
+					<div class="panel-body modal-body">				
+						<div class="row">
+							<div class="col-sm-6">
+								<div class="row">
+									<div class="col-xs-4">
+										<img class="img-responsive" src="../../../img/usuarios/alicia26.jpg" th:src="'../../../img/usuarios/user.png'"/>
+									</div>
+									<div class="col-xs-8">
+										<p class="text-info text-left">Juana Juanita Juarez</p>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="panel-footer modal-footer">
+						<p action="alta_usuarios"></p>
+						<p class="text-danger text-center" servermsg=""></p>
+						<div class="col-xs-4 col-xs-offset-4">
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+
+	<!-- MODIFICAR -->
+	<div class="modal fade" id="modal-modificar">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="panel panel-primary" style="margin-bottom:0px">
+					<div class="panel-heading">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+						<h4 class="panel-title text-center">Modificar Usuario</h4>
+					</div>
+
+					<div class="panel-body modal-body">
+					</div>
+				</div>
+
+				<script>
+				$('#modal-modificar').on('show.bs.modal', function(e){
+					var body_adicionar = $('.modal-body','#modal-agregar').clone();
+					body_adicionar.find('form').attr('action','modificar_usuario');
+					body_adicionar.find('[name*="correo"]').attr('readonly','');
+					body_adicionar.find('[name="ci"]').attr('readonly','');
+					body_adicionar.find('[name="nombre"]').attr('autofocus','');
+					body_adicionar.find('[name*="clave"]').removeAttr('required');
+					body_adicionar.find('[name="imagen"]').removeAttr('required');
+					body_adicionar.find('[getaction]').attr('getaction','get_usuario');
+
+					$('.modal-body','#modal-modificar').html(body_adicionar.html());
+					$('#modal-modificar').formValidation({
+						locale: 'es_ES',
+						icon: {
+						    valid:      'glyphicon glyphicon-ok',
+						    invalid:    'glyphicon glyphicon-remove',
+						    validating: 'glyphicon glyphicon-refresh'
+						}
+					});
+					$('.modal-body','#modal-modificar').find('[type="file"]').fileinput();
+				});
+				</script>
+			</div>
+		</div>
+	</div>
+
+</body>
+
+</html>

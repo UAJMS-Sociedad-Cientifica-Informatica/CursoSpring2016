@@ -1,0 +1,47 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<meta charset="latin9"/>
+	<title> Mensaje de error </title>
+	<link rel="stylesheet" href="../../css/bootstrap.min.css"/>
+	<script type="text/javascript" src="../../js/jquery-2.1.4.min.js"></script>
+</head>
+
+<body>
+	<div class="container">
+
+		<p style="margin-bottom:2%;"></p>
+
+		<div class="panel panel-primary">
+			<div class="panel-heading">
+				<h4 class="text-center"> Houston tenemos un problema </h4>
+			</div>
+
+			<div class="panel-body">
+				<h4 class="text-center" th:text="${titulo}"> Se ha producido un error en la solicitud. </h4>
+				<div>
+					<img class="img-responsive center-block" src="../../img/mantenimiento2.png" alt="OBRERITO"/>
+				</div>
+				<h4 class="text-center"> Disculpe las molestias. </h4>
+				<hr/>
+				<p> <b>URL: </b> <span th:text="${url}">www.algonoencontrado.com</span> </p>
+				<p> <b>Error: </b> <span th:text="${status}">1994</span> </p>
+				<p> <b>Tiempo: </b> <span th:text="${timestamp}">10:00</span> </p>
+				<p> <b>Detalle: </b> <span th:text="${ex}">Aqui ira un detalle del error causado tal como: Se produjo un error fatal en la solicitud</span> </p>
+				<hr/>
+				<p class="text-center"> <button class="btn btn-link" type="button" id="atras"> <span class="glyphicon glyphicon-home"></span> Volver atras</button> </p>
+			</div>
+		</div>
+
+		<script>
+		$(document).on('ready',function(){
+			$('#atras').on('click', function(){
+				window.history.back();
+			});
+		});
+		</script>
+	</div>
+</body>
+
+</html>
